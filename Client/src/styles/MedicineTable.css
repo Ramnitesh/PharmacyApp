@@ -1,0 +1,233 @@
+/* MedicineTable Styles */
+
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 0.5rem;
+  border: 1px solid #e0e0e0;
+}
+
+.medicine-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.medicine-table thead {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.medicine-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.medicine-table tbody tr {
+  border-bottom: 1px solid #e0e0e0;
+  transition: background-color 0.2s ease;
+}
+
+.medicine-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.medicine-table td {
+  padding: 1rem;
+  color: #333;
+}
+
+/* Row color indicators */
+.medicine-table tbody tr.row-danger {
+  background-color: #ffebee;
+  border-left: 4px solid #f44;
+}
+
+.medicine-table tbody tr.row-danger:hover {
+  background-color: #ffcdd2;
+}
+
+.medicine-table tbody tr.row-warning {
+  background-color: #fffde7;
+  border-left: 4px solid #fa0;
+}
+
+.medicine-table tbody tr.row-warning:hover {
+  background-color: #fff59d;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.btn-edit,
+.btn-delete {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 0.3rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+}
+
+.btn-edit {
+  color: #667eea;
+  background: #f0f4ff;
+}
+
+.btn-edit:hover {
+  background: #e0e9ff;
+  transform: scale(1.1);
+}
+
+.btn-delete {
+  color: #f44;
+  background: #fee;
+}
+
+.btn-delete:hover {
+  background: #fdd;
+  transform: scale(1.1);
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #999;
+}
+
+.empty-state p {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .medicine-table {
+    font-size: 0.85rem;
+  }
+
+  .medicine-table th,
+  .medicine-table td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .action-buttons {
+    gap: 0.25rem;
+  }
+
+  .btn-edit,
+  .btn-delete {
+    min-width: 28px;
+    height: 28px;
+    font-size: 1rem;
+  }
+}
+
+/* Mobile: Convert table to cards */
+@media (max-width: 640px) {
+  .table-wrapper {
+    border: none;
+  }
+
+  .medicine-table {
+    display: block;
+  }
+
+  .medicine-table thead {
+    display: none;
+  }
+
+  .medicine-table tbody {
+    display: block;
+  }
+
+  .medicine-table tbody tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 0.5rem;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .medicine-table tbody tr.row-danger {
+    border-left: 4px solid #f44;
+    background-color: #ffebee;
+  }
+
+  .medicine-table tbody tr.row-warning {
+    border-left: 4px solid #fa0;
+    background-color: #fffde7;
+  }
+
+  .medicine-table td {
+    display: block;
+    padding: 0.75rem;
+    border-bottom: 1px solid #f0f0f0;
+    text-align: left;
+  }
+
+  .medicine-table td:last-child {
+    border-bottom: none;
+  }
+
+  .medicine-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #667eea;
+    display: block;
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .medicine-table td.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+  }
+
+  .medicine-table td.action-buttons::before {
+    display: none;
+  }
+
+  .action-buttons {
+    justify-content: flex-end;
+  }
+
+  .empty-state {
+    padding: 2rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .medicine-table td {
+    padding: 0.5rem;
+  }
+
+  .action-buttons {
+    gap: 0.25rem;
+  }
+
+  .btn-edit,
+  .btn-delete {
+    min-width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+}
