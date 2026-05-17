@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using ABCPharmacyAPI.Models;
-using System.Text.Json;
+using ABCPharmacyAPI.Services;
+using ABCPharmacyAPI.DTOs;
+using ABCPharmacyAPI.Exceptions;
 
 namespace ABCPharmacyAPI.Controllers
 {
@@ -8,108 +9,72 @@ namespace ABCPharmacyAPI.Controllers
     [Route("api/[controller]")]
     public class MedicineController : ControllerBase
     {
-        private const string DataFile = "Data/medicines.json";
+        private readonly IMedicineService _service;
+        private readonly ILogger<MedicineController> _logger;
+
+        public MedicineController(IMedicineService service, ILogger<MedicineController> logger)
+        {
+            _service = service;
+            _logger = logger;
+        }
 
         [HttpGet]
-        public IActionResult GetMedicines()
+        public async Task<IActionResult> GetMedicines()
         {
-            if (!System.IO.File.Exists(DataFile))
-            {
-                return Ok(new List<Medicine>());
-            }
+            var list = await _service.GetAllAsync();
+            return Ok(list);
+        }
 
-            var jsonData = System.IO.File.ReadAllText(DataFile);
-            var medicines = JsonSerializer.Deserialize<List<Medicine>>(jsonData);
-            return Ok(medicines);
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var item = await _service.GetByIdAsync(id);
+            if (item == null) return NotFound();
+            return Ok(item);
         }
 
         [HttpPost]
-        public IActionResult AddMedicine([FromBody] Medicine medicine)
+        public async Task<IActionResult> AddMedicine([FromBody] CreateMedicineRequest request)
         {
-            if (medicine == null)
+            if (!ModelState.IsValid)
+                return ValidationProblem(ModelState);
+
+            try
             {
-                return BadRequest("Invalid medicine data.");
+                var created = await _service.CreateAsync(request);
+                return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
             }
-
-            var medicines = new List<Medicine>();
-
-            if (System.IO.File.Exists(DataFile))
+            catch (DuplicateMedicineException dex)
             {
-                var jsonData = System.IO.File.ReadAllText(DataFile);
-                medicines = JsonSerializer.Deserialize<List<Medicine>>(jsonData);
+                _logger.LogWarning(dex, "Duplicate create attempt: {Name} - {Brand}", request.FullName, request.Brand);
+                return Conflict(new { message = dex.Message });
             }
-
-            // Generate ID based on max ID + 1
-            if (medicines.Count > 0)
-            {
-                medicine.Id = medicines.Max(m => m.Id) + 1;
-            }
-            else
-            {
-                medicine.Id = 1;
-            }
-
-            medicines.Add(medicine);
-            System.IO.File.WriteAllText(DataFile, JsonSerializer.Serialize(medicines));
-
-            return CreatedAtAction(nameof(GetMedicines), new { id = medicine.Id }, medicine);
         }
 
-        [HttpPut("{id}")]
-        public IActionResult UpdateMedicine(int id, [FromBody] Medicine medicine)
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> UpdateMedicine(int id, [FromBody] UpdateMedicineRequest request)
         {
-            if (medicine == null)
+            if (!ModelState.IsValid)
+                return ValidationProblem(ModelState);
+
+            try
             {
-                return BadRequest("Invalid medicine data.");
+                var updated = await _service.UpdateAsync(id, request);
+                if (updated == null) return NotFound(new { message = $"Medicine with ID {id} not found." });
+                return Ok(updated);
             }
-
-            var medicines = new List<Medicine>();
-
-            if (System.IO.File.Exists(DataFile))
+            catch (DuplicateMedicineException dex)
             {
-                var jsonData = System.IO.File.ReadAllText(DataFile);
-                medicines = JsonSerializer.Deserialize<List<Medicine>>(jsonData);
+                _logger.LogWarning(dex, "Duplicate update attempt for {Id}: {Name} - {Brand}", id, request.FullName, request.Brand);
+                return Conflict(new { message = dex.Message });
             }
-
-            var existingMedicine = medicines.FirstOrDefault(m => m.Id == id);
-            if (existingMedicine == null)
-            {
-                return NotFound($"Medicine with ID {id} not found.");
-            }
-
-            // Update the medicine
-            existingMedicine.FullName = medicine.FullName;
-            existingMedicine.Brand = medicine.Brand;
-            existingMedicine.ExpiryDate = medicine.ExpiryDate;
-            existingMedicine.Quantity = medicine.Quantity;
-            existingMedicine.Price = medicine.Price;
-            existingMedicine.Notes = medicine.Notes;
-
-            System.IO.File.WriteAllText(DataFile, JsonSerializer.Serialize(medicines));
-
-            return Ok(existingMedicine);
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult DeleteMedicine(int id)
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteMedicine(int id)
         {
-            var medicines = new List<Medicine>();
-
-            if (System.IO.File.Exists(DataFile))
-            {
-                var jsonData = System.IO.File.ReadAllText(DataFile);
-                medicines = JsonSerializer.Deserialize<List<Medicine>>(jsonData);
-            }
-
-            var medicineToDelete = medicines.FirstOrDefault(m => m.Id == id);
-            if (medicineToDelete == null)
-            {
-                return NotFound($"Medicine with ID {id} not found.");
-            }
-
-            medicines.Remove(medicineToDelete);
-            System.IO.File.WriteAllText(DataFile, JsonSerializer.Serialize(medicines));
-
+            var deleted = await _service.DeleteAsync(id);
+            if (!deleted) return NotFound(new { message = $"Medicine with ID {id} not found." });
             return NoContent();
         }
     }

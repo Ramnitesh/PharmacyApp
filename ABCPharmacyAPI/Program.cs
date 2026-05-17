@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using ABCPharmacyAPI.Repositories;
+using ABCPharmacyAPI.Services;
+using ABCPharmacyAPI.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,31 +12,41 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Add CORS policy for React frontend
+// Configure CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", policy =>
     {
         policy.WithOrigins(
-            "http://localhost:3000",      // React dev server
-            "http://127.0.0.1:3000",      // Localhost alternative
-            "https://localhost:3000"      // HTTPS if needed
+            "http://localhost:3000",
+            "http://127.0.0.1:3000",
+            "https://localhost:3000"
         )
-        .AllowAnyMethod()                 // Allow GET, POST, PUT, DELETE, etc.
-        .AllowAnyHeader()                 // Allow all headers
-        .AllowCredentials();              // Allow credentials
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials();
     });
 });
 
+// Configure DI: repository requires a file path and logger; read from config
+var dataFile = builder.Configuration["Data:MedicineFilePath"] ?? "Data/medicines.json";
+builder.Services.AddSingleton<IMedicineRepository>(sp =>
+{
+    var logger = sp.GetRequiredService<ILogger<MedicineRepository>>();
+    return new MedicineRepository(dataFile, logger);
+});
+
+builder.Services.AddScoped<IMedicineService, MedicineService>();
+
 var app = builder.Build();
+
+app.UseGlobalExceptionHandling();
 
 app.UseSwagger();
 app.UseSwaggerUI();
 
-// Configure the HTTP request pipeline.
 app.UseHttpsRedirection();
 
-// Use CORS policy
 app.UseCors("AllowReactApp");
 
 app.UseAuthorization();
