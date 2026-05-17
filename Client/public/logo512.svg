@@ -1,0 +1,24 @@
+<svg width="512" height="512" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="192" height="192" fill="#f5f5f5" rx="45"/>
+
+  <!-- Main background circle -->
+  <circle cx="96" cy="96" r="85" fill="#667eea"/>
+
+  <!-- Pharmacy bottle -->
+  <path d="M 75 50 L 75 70 L 70 75 L 70 145 Q 70 155 80 155 L 112 155 Q 122 155 122 145 L 122 75 L 117 70 L 117 50 Z" fill="#ffffff" stroke="#ffffff" stroke-width="2.5"/>
+
+  <!-- Bottle cap -->
+  <rect x="78" y="42" width="36" height="12" fill="#764ba2" rx="2"/>
+
+  <!-- Medical cross on bottle -->
+  <g fill="#667eea">
+    <!-- Vertical bar -->
+    <rect x="90" y="82" width="12" height="38" fill="#667eea"/>
+    <!-- Horizontal bar -->
+    <rect x="78" y="94" width="36" height="12" fill="#667eea"/>
+  </g>
+
+  <!-- Decorative heart (wellness) -->
+  <path d="M 138 105 Q 145 98 152 105 Q 152 118 138 132 Q 124 118 124 105 Q 131 98 138 105" fill="#00c853" opacity="0.9"/>
+</svg>
