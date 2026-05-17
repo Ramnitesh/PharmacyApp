@@ -37,7 +37,7 @@ const MedicineTable = ({ medicines, onEdit, onDelete }) => {
    */
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-GB", {
+    return date.toLocaleDateString("en-IN", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
@@ -48,9 +48,9 @@ const MedicineTable = ({ medicines, onEdit, onDelete }) => {
    * Format currency to readable format
    */
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("en-IN", {
       style: "currency",
-      currency: "USD",
+      currency: "INR",
     }).format(amount);
   };
 
@@ -78,7 +78,11 @@ const MedicineTable = ({ medicines, onEdit, onDelete }) => {
         <tbody>
           {medicines.map((medicine) => (
             <tr key={medicine.id} className={getRowClass(medicine)}>
-              <td data-label="Full Name">{medicine.fullName}</td>
+              <td data-label="Full Name" className="fullname-cell">
+                <span title={medicine.notes ? medicine.notes : "No notes"}>
+                  {medicine.fullName}
+                </span>
+              </td>
               <td data-label="Brand">{medicine.brand}</td>
               <td data-label="Expiry Date">
                 {formatDate(medicine.expiryDate)}

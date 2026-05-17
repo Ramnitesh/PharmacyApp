@@ -104,6 +104,15 @@
   transform: scale(1.1);
 }
 
+/* Full Name Tooltip Cursor */
+.fullname-cell span {
+  cursor: pointer;
+}
+
+.fullname-cell span:hover {
+  cursor: pointer;
+}
+
 /* Empty State */
 .empty-state {
   text-align: center;
@@ -139,31 +148,34 @@
   }
 }
 
-/* Mobile: Convert table to cards */
+/* Mobile: Keep table horizontal with scrolling */
 @media (max-width: 640px) {
   .table-wrapper {
-    border: none;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .medicine-table {
-    display: block;
+    min-width: 600px;
+    font-size: 0.8rem;
   }
 
   .medicine-table thead {
-    display: none;
+    display: table-header-group;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   }
 
   .medicine-table tbody {
-    display: block;
+    display: table-row-group;
   }
 
   .medicine-table tbody tr {
-    display: block;
-    margin-bottom: 1rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 0.5rem;
+    display: table-row;
+    margin-bottom: 0;
+    border: none;
+    border-bottom: 1px solid #e0e0e0;
     padding: 0;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .medicine-table tbody tr.row-danger {
@@ -176,38 +188,38 @@
     background-color: #fffde7;
   }
 
+  .medicine-table th,
   .medicine-table td {
-    display: block;
-    padding: 0.75rem;
-    border-bottom: 1px solid #f0f0f0;
+    display: table-cell;
+    padding: 0.6rem 0.5rem;
     text-align: left;
+    border-bottom: 1px solid #e0e0e0;
   }
 
-  .medicine-table td:last-child {
-    border-bottom: none;
+  .medicine-table th {
+    padding: 0.75rem 0.5rem;
+    font-weight: 600;
+    font-size: 0.75rem;
   }
 
   .medicine-table td::before {
-    content: attr(data-label);
-    font-weight: 600;
-    color: #667eea;
-    display: block;
-    font-size: 0.85rem;
-    margin-bottom: 0.25rem;
-  }
-
-  .medicine-table td.action-buttons {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: flex-end;
-  }
-
-  .medicine-table td.action-buttons::before {
     display: none;
   }
 
+  .medicine-table td.action-buttons {
+    display: table-cell;
+  }
+
   .action-buttons {
-    justify-content: flex-end;
+    justify-content: center;
+    gap: 0.25rem;
+  }
+
+  .btn-edit,
+  .btn-delete {
+    min-width: 28px;
+    height: 28px;
+    font-size: 0.9rem;
   }
 
   .empty-state {

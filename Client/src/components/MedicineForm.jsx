@@ -46,38 +46,39 @@ const MedicineForm = ({
    * Validate form data
    * @returns {Object} Errors object
    */
-  const validateForm = () => {
+  const validateForm = (data = formData) => {
+    const values = data;
     const newErrors = {};
 
-    if (!formData.fullName.trim()) {
+    if (!values.fullName.trim()) {
       newErrors.fullName = "Full Name is required";
     }
 
-    if (!formData.brand.trim()) {
+    if (!values.brand.trim()) {
       newErrors.brand = "Brand is required";
     }
 
-    if (!formData.expiryDate) {
+    if (!values.expiryDate) {
       newErrors.expiryDate = "Expiry Date is required";
     } else {
-      const expiryDate = new Date(formData.expiryDate);
+      const expiryDate = new Date(values.expiryDate);
       const today = new Date();
       if (expiryDate < today) {
         newErrors.expiryDate = "Expiry Date must be in the future";
       }
     }
 
-    if (!formData.quantity) {
+    if (!values.quantity) {
       newErrors.quantity = "Quantity is required";
-    } else if (isNaN(formData.quantity) || parseFloat(formData.quantity) <= 0) {
+    } else if (isNaN(values.quantity) || parseFloat(values.quantity) <= 0) {
       newErrors.quantity = "Quantity must be a positive number";
     }
 
-    if (!formData.price) {
+    if (!values.price) {
       newErrors.price = "Price is required";
-    } else if (isNaN(formData.price) || parseFloat(formData.price) <= 0) {
+    } else if (isNaN(values.price) || parseFloat(values.price) <= 0) {
       newErrors.price = "Price must be a positive number";
-    } else if (!/^\d+(\.\d{1,2})?$/.test(formData.price)) {
+    } else if (!/^\d+(\.\d{1,2})?$/.test(values.price)) {
       newErrors.price = "Price must have max 2 decimal places";
     }
 
@@ -102,13 +103,38 @@ const MedicineForm = ({
     }
   };
 
+  const trimFieldValue = (name, value) => {
+    const trimFields = ["fullName", "brand", "notes"];
+    return trimFields.includes(name) ? value.trim() : value;
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    const trimmedValue = trimFieldValue(name, value);
+    if (trimmedValue !== value) {
+      setFormData((prevState) => ({
+        ...prevState,
+        [name]: trimmedValue,
+      }));
+    }
+  };
+
   /**
    * Handle form submission
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const newErrors = validateForm();
+    const cleanedData = {
+      ...formData,
+      fullName: formData.fullName.trim(),
+      brand: formData.brand.trim(),
+      notes: formData.notes.trim(),
+    };
+
+    setFormData(cleanedData);
+
+    const newErrors = validateForm(cleanedData);
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -120,9 +146,9 @@ const MedicineForm = ({
     try {
       // Convert string values to appropriate types
       const submitData = {
-        ...formData,
-        quantity: parseInt(formData.quantity),
-        price: parseFloat(formData.price),
+        ...cleanedData,
+        quantity: parseInt(cleanedData.quantity, 10),
+        price: parseFloat(cleanedData.price),
       };
 
       await onSubmit(submitData);
@@ -148,6 +174,16 @@ const MedicineForm = ({
     <div className="form-container">
       <div className="form-header">
         <h2>{initialValues ? "✏️ Edit Medicine" : "➕ Add New Medicine"}</h2>
+        {onCancel && (
+          <button
+            type="button"
+            className="form-close-btn"
+            onClick={onCancel}
+            disabled={isSubmitting || loading}
+          >
+            ✕
+          </button>
+        )}
       </div>
 
       <form onSubmit={handleSubmit} className="medicine-form">
@@ -160,7 +196,9 @@ const MedicineForm = ({
               name="fullName"
               value={formData.fullName}
               onChange={handleChange}
+              onBlur={handleBlur}
               placeholder="e.g., Paracetamol"
+              maxLength="80"
               className={errors.fullName ? "input-error" : ""}
               disabled={isSubmitting || loading}
             />
@@ -177,7 +215,9 @@ const MedicineForm = ({
               name="brand"
               value={formData.brand}
               onChange={handleChange}
+              onBlur={handleBlur}
               placeholder="e.g., Calpol"
+              maxLength="50"
               className={errors.brand ? "input-error" : ""}
               disabled={isSubmitting || loading}
             />
@@ -214,6 +254,8 @@ const MedicineForm = ({
               onChange={handleChange}
               placeholder="e.g., 100"
               min="1"
+              max="9999"
+              step="1"
               className={errors.quantity ? "input-error" : ""}
               disabled={isSubmitting || loading}
             />
@@ -225,16 +267,17 @@ const MedicineForm = ({
 
         <div className="form-row">
           <div className="form-group">
-            <label htmlFor="price">Price (USD) *</label>
+            <label htmlFor="price">Price (INR) *</label>
             <input
               type="number"
               id="price"
               name="price"
               value={formData.price}
               onChange={handleChange}
-              placeholder="e.g., 5.99"
+              placeholder="e.g., 199.99"
               step="0.01"
               min="0.01"
+              max="99999.99"
               className={errors.price ? "input-error" : ""}
               disabled={isSubmitting || loading}
             />
@@ -251,13 +294,25 @@ const MedicineForm = ({
               name="notes"
               value={formData.notes}
               onChange={handleChange}
+              onBlur={handleBlur}
               placeholder="Additional notes (optional)"
+              maxLength="250"
               disabled={isSubmitting || loading}
             />
           </div>
         </div>
 
         <div className="form-actions">
+          {onCancel && (
+            <button
+              type="button"
+              className="btn-cancel"
+              onClick={onCancel}
+              disabled={isSubmitting || loading}
+            >
+              Cancel
+            </button>
+          )}
           <button
             type="submit"
             className="btn-submit"
@@ -269,16 +324,6 @@ const MedicineForm = ({
                 ? "Update Medicine"
                 : "Add Medicine"}
           </button>
-          {initialValues && (
-            <button
-              type="button"
-              className="btn-cancel"
-              onClick={onCancel}
-              disabled={isSubmitting || loading}
-            >
-              Cancel
-            </button>
-          )}
         </div>
       </form>
     </div>
