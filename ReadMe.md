@@ -1,3 +1,5 @@
+<img width="1423" height="778" alt="abc pharmacy" src="https://github.com/user-attachments/assets/8bfe0bef-5056-46d9-a29f-6deedaf9c9a1" />
+
 # ABC Pharmacy Management System
 
 A Single Page Application (SPA) for managing medicines using ASP.NET Core Web API and ReactJS.
